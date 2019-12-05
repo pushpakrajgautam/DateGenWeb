@@ -1,0 +1,16 @@
+cfg = {}
+cfg['input_dim'] = 28521 + 102 # input dimension to LSTM
+cfg['hidden_dim'] = 512 # hidden dimension for LSTM
+cfg['output_dim'] = 28521 # output dimension of the model
+cfg['layers'] = 2 # number of layers of LSTM
+cfg['dropout'] = 0.2 # dropout rate between two layers of LSTM; useful only when layers > 1; between 0 and 1
+cfg['bidirectional'] = False # True or False; True means using a bidirectional LSTM
+cfg['batch_size'] = 64 # batch size of input
+cfg['learning_rate'] = 0.00005 # learning rate to be used
+cfg['L2_penalty'] = 0.000001 # weighting constant for L2 regularization term; this is a parameter when you define optimizer
+cfg['gen_temp'] = 0.4 # temperature to use while generating reviews
+cfg['max_len'] = 50 # maximum character length of the generated reviews
+cfg['max_words'] = 50 # Limit for no. of words in input
+cfg['epochs'] = 5 # number of epochs for which the model is trained
+cfg['cuda'] = True #True or False depending whether you want to run your model on a GPU or not. If you set this to True, make sure to start a GPU pod on ieng6 server
+cfg['train'] = True # True or False; True denotes that the model is bein deployed in training mode, False means the model is not being used to generate reviews
