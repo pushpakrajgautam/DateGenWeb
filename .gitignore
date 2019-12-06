@@ -2,3 +2,4 @@
 *.txt
 *.pyc
 online_dating/__pycache__/*
+dpgen/__pycache__/*
