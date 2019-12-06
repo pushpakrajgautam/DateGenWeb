@@ -9,18 +9,9 @@ import pandas as pd
 from torch.autograd import Variable
 from nltk.translate import bleu_score
 from html2text import html2text
-from django.conf import settings
 
-from .configs import cfg
-from .model import *
-
-# Model and Data
-model = None
-torch_device = None
-X_train = None
-y_train = None 
-X_valid = None
-y_valid = None
+from configs import cfg
+from model import *
 
 # Helpers
 
@@ -62,18 +53,11 @@ def process_train_data(data):
     # Setup input data
     in_columns = get_in_columns()
     df = data[in_columns]
-    # One-hot encode columns and store dummies in config
+    # One-hot encode columns
     dummies = []
-    ds = dict() # dummy store - list of dicts to remember one-hots of attributes
     for col in in_columns:
         if col != "age":
-            dummy = pd.get_dummies(df[col])
-            xs = dict()
-            for x in zip(dummy.values, df[col]):
-                xs[x[1]] = x[0]
-            ds[col] = xs
-            dummies.append(dummy)
-    cfg['dummies'] = ds
+            dummies.append(pd.get_dummies(df[col]))
     # Limit age to 70
     def limit_age(age):
         return age if age <= 70 else 70
@@ -111,23 +95,6 @@ def process_train_data(data):
 
     # Return input and output data
     return doc.as_matrix(), attr.as_matrix()
-
-def process_test_input(df):
-    # Setup input data
-    in_columns = get_in_columns()
-    # One-hot encode columns
-    dummies = []
-    for col in in_columns:
-        if col != "age":
-            dummies.append(pd.get_dummies(df[col]))
-    # Limit age to 70
-    def limit_age(age):
-        return age if age <= 70 else 70
-    age = df["age"].apply(limit_age)
-    # Join attribute columns
-    dummies.append(pd.DataFrame(age))
-    attr = pd.concat(dummies, axis=1)
-    return attr.as_matrix()
 
 def train_valid_split(data, labels):
     """
@@ -281,6 +248,7 @@ def validate(model, X_valid, y_valid, cfg):
 
         score = 0
         for b in range(len(split)):
+            print(split[b])
             arr = split_ref[b]
             arr = [[s] for s in arr]
             min_len = 0
@@ -321,68 +289,16 @@ def generate_to_file(model, X_test, cfg):
         output_tensor = [' '.join(row) for row in output_tensor]
         save_to_file(output_tensor, out_fname) 
 
-def generate_profile(model, X_test, cfg):
-    bs = cfg['batch_size']
-    vs = cfg['vocab_size']
-    starts = np.zeros((bs, vs))
-    output_tensor = np.zeros((1, bs))
-    for i in range(len(starts)):
-        starts[i, 128] = 1
-        output_tensor[0, i] = 128
-
-    metad = np.array([X_test])
-    features = np.concatenate((starts, metad), axis=1)
-    features = np.expand_dims(features, axis=0)
-    model.hidden_state = model.zero_hidden()
-
-    for k in range(cfg['max_len']):
-        with torch.no_grad():
-            result = model(torch.from_numpy(features).float().to(torch_device))
-            result = func.softmax(torch.div(result, cfg['gen_temp']), dim=2)
-            result = torch.distributions.one_hot_categorical.OneHotCategorical(result)
-            result = result.sample()
-            output_tensor = np.concatenate((output_tensor, result.argmax(dim=2)), axis=0) 
-            features = np.concatenate((result, np.expand_dims(metad, axis=0)), axis=2)
-
-    f = np.vectorize(toword)
-    output_tensor = f(output_tensor).T
-    profile = [' '.join(row) for row in output_tensor]
-    res = []
-    for p in profile[0].split(' '):
-        if p == "<EOS>":
-            break
-        res.append(p)
-    return ' '.join(res)
-
-def get_profile(input):
-    ds = cfg["dummies"]
-    in_columns = get_in_columns()
-    pds = []
-    for col in in_columns:
-        if col != "age":
-            pds.append(pd.Series(ds[col][input[col]]))
-    pds.append(pd.Series([int(input["age"])]))
-    attr = pd.concat(pds, axis=0)
-    cfg["gen_temp"] = float(input["temp"])
-    print(attr.as_matrix())
-    profile = generate_profile(model, attr.as_matrix(), cfg)
-    return profile
-
-def setup():
-    global model
-    global torch_device
-    global X_train
-    global y_train
-    global X_valid
-    global y_valid
+# Main
+if __name__ == "__main__":
     if cfg['cuda'] and torch.cuda.is_available():
         torch_device = torch.device('cuda')
     else:
         torch_device = torch.device('cpu')
-    cfg['batch_size'] = 1
-    data = load_data('profiles.csv')
+    data = load_data("profiles.csv")
     out_fname = "gen_profiles.txt"
     train_data, train_labels = process_train_data(data)
     X_train, y_train, X_valid, y_valid = train_valid_split(train_data, train_labels)
     model = baselineLSTM(cfg)
-    model.load_state_dict(torch.load("./4LSTM.txt", map_location=torch_device))
+    train(model, X_train, y_train, X_valid, y_valid, cfg) # Train the model
+    validate(model, X_valid, y_valid, cfg)
