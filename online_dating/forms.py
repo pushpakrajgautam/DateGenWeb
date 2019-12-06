@@ -90,3 +90,4 @@ class ProfileForm(forms.Form):
                                    ('seeing someone', 'Seeing Someone'),
                                    ('unknown', 'Unknown'),
                                ])
+    temp = forms.FloatField(label="Temperature", initial=1.5)

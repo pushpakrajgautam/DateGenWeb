@@ -363,6 +363,7 @@ def get_profile(input):
             pds.append(pd.Series(ds[col][input[col]]))
     pds.append(pd.Series([int(input["age"])]))
     attr = pd.concat(pds, axis=0)
+    cfg["gen_temp"] = float(input["temp"])
     print(attr.as_matrix())
     profile = generate_profile(model, attr.as_matrix(), cfg)
     return profile
@@ -384,11 +385,4 @@ def setup():
     train_data, train_labels = process_train_data(data)
     X_train, y_train, X_valid, y_valid = train_valid_split(train_data, train_labels)
     model = baselineLSTM(cfg)
-    model.load_state_dict(torch.load("./2LSTM.txt", map_location=torch_device))
-
-"""
-# Main
-if __name__ == "__main__":
-    profile = generate_profile(model, y_valid[0], cfg)
-    print(profile)
-"""
+    model.load_state_dict(torch.load("./4LSTM.txt", map_location=torch_device))

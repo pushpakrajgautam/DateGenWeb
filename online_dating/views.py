@@ -14,4 +14,4 @@ def get_name(request):
         form = ProfileForm()
     return render(request, 'index.html', {'form': form})
 
-gen.setup()
+gen.setup() # Load the LSTM model with weights
