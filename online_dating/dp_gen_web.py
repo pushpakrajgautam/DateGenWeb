@@ -299,8 +299,8 @@ def generate_to_file(model, X_test, cfg):
         starts = np.zeros((bs, vs))
         output_tensor = np.zeros((1, bs))
         for i in range(len(starts)):
-            starts[i, 128] = 1
-            output_tensor[0, i] = 128
+            starts[i, vs-2] = 1
+            output_tensor[0, i] = vs-2
 
         metad = X_test[a*bs:(a + 1)*bs, :]
         features = np.concatenate((starts, metad), axis=1)
@@ -327,8 +327,8 @@ def generate_profile(model, X_test, cfg):
     starts = np.zeros((bs, vs))
     output_tensor = np.zeros((1, bs))
     for i in range(len(starts)):
-        starts[i, 128] = 1
-        output_tensor[0, i] = 128
+        starts[i, vs-2] = 1
+        output_tensor[0, i] = vs-2
 
     metad = np.array([X_test])
     features = np.concatenate((starts, metad), axis=1)
@@ -349,6 +349,8 @@ def generate_profile(model, X_test, cfg):
     profile = [' '.join(row) for row in output_tensor]
     res = []
     for p in profile[0].split(' '):
+        if p == "<SOS>":
+            continue
         if p == "<EOS>":
             break
         res.append(p)
