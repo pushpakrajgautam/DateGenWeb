@@ -26,3 +26,5 @@ NOTE 2: The code has index.html file - move it to the django directory which loo
 
 # Examples
 If I find the time and money, I'll serve this model through a webpage. But for now, I only have some screenshots (taken from a local instance):
+
+!(example_run.JPG)
