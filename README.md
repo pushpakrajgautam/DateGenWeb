@@ -20,7 +20,11 @@ If you have Django setup locally, running the following command from this repo's
 python manage.py runserver
 ```
 NOTE 1: The python version should at least be 3.6.  
-NOTE 2: The code has index.html file - move it to the 
+NOTE 2: The code has index.html file - move it to the django directory which looks something like this:  
+        <prefix>/lib/python3.6/site-packages/django/contrib/admin/templates/index.html.  
+        This is where python libraries get installed.
 
 # Examples
 If I find the time and money, I'll serve this model through a webpage. But for now, I only have some screenshots (taken from a local instance):
+
+![Example Run](example_run.JPG)
