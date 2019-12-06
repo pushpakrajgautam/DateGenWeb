@@ -1,3 +1,4 @@
 *.csv
 *.txt
 *.pyc
+online_dating/__pycache__/*
