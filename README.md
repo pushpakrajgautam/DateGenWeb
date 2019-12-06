@@ -15,11 +15,11 @@ dp_gen_web.py (Profile generator)
 model.py (LSTM model)
 
 ## How To Run
-If you have Django setup locally, running the following command from this repo's local directory, shoudl work -
+If you have Django setup locally, running the following command from this repo's local directory, should work -
 ```
 python manage.py runserver
 ```
-NOTE 1: The python version should at least be 3.6
+NOTE 1: The python version should at least be 3.6.  
 NOTE 2:
 
 # Examples
